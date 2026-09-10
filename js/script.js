@@ -25,15 +25,34 @@ const els = {
 };
 
 // ---------- asset preloading ----------
-// Custom font for the account-name text. If the file isn't in assets/fonts/
-// yet, this simply fails silently and render() falls back to the system
-// font stack — nothing breaks either way.
+// Custom font for the account-name text. If none of the files below exist yet
+// in assets/fonts/, this simply fails silently and render() falls back to the
+// system font stack — nothing breaks either way.
+// NOTE: unlike a CSS @font-face url() — which resolves relative to the .css
+// file's own location — a relative URL passed to the FontFace API resolves
+// relative to the HTML document (index.html, at the project root). So paths
+// here must NOT start with "../" the way the CSS ones do.
 (function loadAccountFont(){
   if (!('FontFace' in window)) return;
-  const font = new FontFace('AccountNameFont', 'url(../assets/fonts/SF-Pro-Semibold.woff2)', { weight: '600' });
-  font.load()
-    .then(f => { document.fonts.add(f); accountFontFamily = 'AccountNameFont'; })
-    .catch(() => { accountFontFamily = null; });
+  const candidates = [
+    'assets/fonts/SF-Pro-Semibold.woff2',
+    'assets/fonts/SF-Pro-Semibold.otf',
+    'assets/fonts/SF-Pro-Semibold.ttf',
+  ];
+  (async () => {
+    for (const path of candidates){
+      try {
+        const font = new FontFace('AccountNameFont', `url(${path})`, { weight: '600' });
+        const loaded = await font.load();
+        document.fonts.add(loaded);
+        accountFontFamily = 'AccountNameFont';
+        return; // stop at the first file that actually exists and loads
+      } catch (e){
+        continue; // that extension isn't there — try the next one
+      }
+    }
+    accountFontFamily = null; // none of the candidate files were found
+  })();
 })();
 
 // Carousel badge image (extracted from the original PSD by default).
@@ -41,10 +60,23 @@ const els = {
 // this just loads whatever is at that path.
 (function loadCarouselBadge(){
   const img = new Image();
+  img.crossOrigin = 'anonymous'; // avoids tainting the canvas once this is served over http(s)
   img.onload = () => { carouselBadgeImg = img; };
   img.onerror = () => { carouselBadgeImg = null; };
   img.src = 'assets/icons/carousel-badge.png';
 })();
+
+// Opening this file locally via double-click (file:// URL) makes Chrome treat
+// every local file as its own opaque origin — even images in the same folder
+// (like the carousel badge) can then taint the canvas on export, regardless
+// of what photo you picked yourself. This has nothing to do with GitHub
+// Pages: once actually hosted there (a real https origin), this specific
+// issue goes away on its own. Flag it up front so it's obvious what's going on.
+if (location.protocol === 'file:'){
+  window.addEventListener('DOMContentLoaded', () => {
+    setStatus('Stai aprendo il file in locale (file://): alcuni browser bloccano l\'export del PNG in questa modalità per via delle immagini in assets/. Per testare in locale senza problemi, avvia un mini server (es. "python3 -m http.server" nella cartella del progetto) e apri http://localhost:8000 — una volta pubblicato su GitHub Pages funzionerà comunque normalmente.', 'err');
+  });
+}
 
 // ---------- helpers ----------
 function setStatus(msg, kind){
@@ -407,7 +439,10 @@ els.downloadBtn.addEventListener('click', () => {
   try {
     dataUrl = canvas.toDataURL('image/png');
   } catch (e){
-    setStatus('Impossibile generare il PNG: il canvas contiene un\'immagine non accessibile per l\'export. Prova a ricaricare la foto tramite il caricamento manuale.', 'err');
+    const hint = location.protocol === 'file:'
+      ? 'Probabilmente perché stai aprendo il file in locale (file://): avvia un mini server (es. "python3 -m http.server") e riprova da http://localhost — su GitHub Pages funzionerà normalmente.'
+      : 'Prova a ricaricare la foto tramite il caricamento manuale.';
+    setStatus('Impossibile generare il PNG: il canvas contiene un\'immagine non accessibile per l\'export. ' + hint, 'err');
     return;
   }
   const name = els.accountName.value.trim().replace(/^@/, '') || 'story';
