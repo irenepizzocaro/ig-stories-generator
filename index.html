@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IG Story Share Generator</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<h1>IG Story Share Generator</h1>
+<p class="subtitle">Uso personale — incolla il link del post, scegli la foto, genera l'immagine 1080×1920 da condividere in storia.</p>
+
+<div class="layout">
+
+  <!-- LEFT PANEL: controls -->
+  <div class="panel">
+
+    <div class="step">
+      <div class="step-label"><span class="step-num">1</span> Link del post Instagram</div>
+      <input type="text" id="igLink" placeholder="https://www.instagram.com/p/....">
+      <button class="btn-secondary" id="fetchBtn" style="margin-top:8px;">Cerca foto (automatico)</button>
+      <div class="status" id="fetchStatus"></div>
+    </div>
+
+    <div class="step">
+      <div class="step-label"><span class="step-num">2</span> Carica foto manualmente</div>
+      <div class="dropzone" id="dropzone">
+        Trascina qui una o più immagini<br>oppure clicca per scegliere il file
+        <input type="file" id="fileInput" accept="image/*" multiple>
+      </div>
+      <div class="hint">Sempre disponibile: usalo se il fetch automatico non trova nulla, o semplicemente al posto del link.</div>
+    </div>
+
+    <div class="step" id="gridStep" style="display:none;">
+      <div class="step-label"><span class="step-num">3</span> Scegli la foto</div>
+      <div class="thumb-grid" id="thumbGrid"></div>
+    </div>
+
+    <div class="step">
+      <div class="step-label"><span class="step-num">4</span> Nome account</div>
+      <input type="text" id="accountName" placeholder="nome.account (senza @)">
+    </div>
+
+    <div class="step">
+      <div class="toggle-row">
+        <span>Post con più foto (carousel)</span>
+        <label class="switch">
+          <input type="checkbox" id="carouselToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="hint">Si attiva da sola se trovi/carichi più di una foto, ma puoi correggerla a mano.</div>
+    </div>
+
+    <button class="btn-primary" id="generateBtn" disabled>Genera immagine</button>
+  </div>
+
+  <!-- RIGHT PANEL: preview -->
+  <div class="preview-wrap">
+    <div id="canvasFrame">
+      <canvas id="previewCanvas" width="1080" height="1920" style="display:none;"></canvas>
+      <div class="placeholder" id="previewPlaceholder">L'anteprima 1080×1920 apparirà qui dopo aver generato l'immagine</div>
+    </div>
+    <button class="download-btn" id="downloadBtn" disabled>Scarica PNG</button>
+  </div>
+
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>

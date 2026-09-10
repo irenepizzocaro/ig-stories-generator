@@ -1,0 +1,262 @@
+/* Font custom per il testo "account-name" nel canvas.
+   Metti il file del font (lo stesso usato nel PSD, es. SF Pro Semibold)
+   dentro assets/fonts/ con il nome esatto indicato qui sotto.
+   Se il file non c'è, il canvas usa semplicemente il font di sistema
+   di fallback: non si rompe nulla. */
+@font-face{
+  font-family:"AccountNameFont";
+  src:url("../assets/fonts/SF-Pro-Semibold.woff2") format("woff2"),
+      url("../assets/fonts/SF-Pro-Semibold.otf") format("opentype"),
+      url("../assets/fonts/SF-Pro-Semibold.ttf") format("truetype");
+  font-weight:600;
+  font-display:swap;
+}
+
+:root{
+  --bg:#0b0b0f;
+  --panel:#15151c;
+  --panel-border:#26262f;
+  --text:#eceef2;
+  --muted:#8a8c96;
+  --accent:#5b8cff;
+  --accent-hover:#7aa2ff;
+  --danger:#ff6b6b;
+  --ok:#3ddc97;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:32px 16px 80px;
+  min-height:100vh;
+}
+h1{
+  font-size:20px;
+  font-weight:600;
+  margin:0 0 4px;
+}
+.subtitle{
+  color:var(--muted);
+  font-size:13px;
+  margin:0 0 28px;
+  text-align:center;
+  max-width:480px;
+  line-height:1.5;
+}
+.layout{
+  display:flex;
+  gap:28px;
+  align-items:flex-start;
+  width:100%;
+  max-width:920px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.panel{
+  background:var(--panel);
+  border:1px solid var(--panel-border);
+  border-radius:14px;
+  padding:20px;
+  width:380px;
+}
+.step{
+  margin-bottom:22px;
+}
+.step:last-child{margin-bottom:0;}
+.step-label{
+  font-size:12px;
+  font-weight:600;
+  color:var(--muted);
+  margin-bottom:8px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.step-num{
+  background:var(--accent);
+  color:#fff;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+}
+input[type=text]{
+  width:100%;
+  background:#0e0e13;
+  border:1px solid var(--panel-border);
+  color:var(--text);
+  padding:10px 12px;
+  border-radius:8px;
+  font-size:14px;
+  outline:none;
+}
+input[type=text]:focus{border-color:var(--accent);}
+button{
+  cursor:pointer;
+  border:none;
+  border-radius:8px;
+  padding:10px 14px;
+  font-size:14px;
+  font-weight:600;
+  font-family:inherit;
+}
+.btn-primary{
+  background:var(--accent);
+  color:#fff;
+  width:100%;
+  margin-top:8px;
+}
+.btn-primary:hover{background:var(--accent-hover);}
+.btn-primary:disabled{background:#2a2a35;color:var(--muted);cursor:not-allowed;}
+.btn-secondary{
+  background:#20202a;
+  color:var(--text);
+  width:100%;
+}
+.btn-secondary:hover{background:#282832;}
+.dropzone{
+  border:1.5px dashed var(--panel-border);
+  border-radius:10px;
+  padding:20px 12px;
+  text-align:center;
+  color:var(--muted);
+  font-size:13px;
+  margin-top:10px;
+  cursor:pointer;
+  transition:border-color .15s, background .15s;
+}
+.dropzone.drag{
+  border-color:var(--accent);
+  background:rgba(91,140,255,0.08);
+  color:var(--text);
+}
+.dropzone input{display:none;}
+.status{
+  font-size:12px;
+  margin-top:8px;
+  line-height:1.5;
+  color:var(--muted);
+  white-space:pre-line;
+}
+.status.err{color:var(--danger);}
+.status.ok{color:var(--ok);}
+.thumb-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:12px;
+}
+.thumb{
+  position:relative;
+  aspect-ratio:1/1;
+  border-radius:8px;
+  overflow:hidden;
+  border:2px solid transparent;
+  cursor:pointer;
+  background:#0e0e13;
+}
+.thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.thumb.selected{border-color:var(--accent);}
+.thumb .remove{
+  position:absolute;
+  top:2px;
+  right:2px;
+  background:rgba(0,0,0,.6);
+  color:#fff;
+  border-radius:50%;
+  width:18px;
+  height:18px;
+  font-size:11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
+.toggle-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:6px;
+}
+.toggle-row span{font-size:13px;}
+.switch{
+  position:relative;
+  width:40px;
+  height:22px;
+  flex-shrink:0;
+}
+.switch input{opacity:0;width:0;height:0;}
+.slider{
+  position:absolute;
+  cursor:pointer;
+  inset:0;
+  background:#2a2a35;
+  border-radius:22px;
+  transition:.15s;
+}
+.slider:before{
+  content:"";
+  position:absolute;
+  height:16px;
+  width:16px;
+  left:3px;
+  top:3px;
+  background:#fff;
+  border-radius:50%;
+  transition:.15s;
+}
+.switch input:checked + .slider{background:var(--accent);}
+.switch input:checked + .slider:before{transform:translateX(18px);}
+.preview-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+#canvasFrame{
+  width:270px;
+  height:480px;
+  border-radius:16px;
+  overflow:hidden;
+  background:#000;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#previewCanvas{
+  width:100%;
+  height:100%;
+  display:block;
+}
+.placeholder{
+  color:var(--muted);
+  font-size:12px;
+  text-align:center;
+  padding:20px;
+}
+.download-btn{
+  margin-top:16px;
+  background:var(--ok);
+  color:#04331f;
+  width:270px;
+}
+.download-btn:disabled{background:#2a2a35;color:var(--muted);cursor:not-allowed;}
+.hint{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:6px;
+}
+a.link-out{color:var(--accent);text-decoration:none;}
