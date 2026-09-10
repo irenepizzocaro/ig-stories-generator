@@ -339,7 +339,7 @@ function render(){
 
   // BG layer: same photo, scaled to cover the full canvas, blurred
   ctx.save();
-  ctx.filter = 'blur(48px) saturate(1.05)';
+  ctx.filter = 'blur(38px) saturate(1.05)';
   drawCoverImage(ctx, img, -60, -60, canvas.width + 120, canvas.height + 120);
   ctx.restore();
   ctx.fillStyle = 'rgba(0,0,0,0.12)';
