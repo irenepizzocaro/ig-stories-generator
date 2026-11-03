@@ -9,7 +9,7 @@
 <body>
 
 <h1>IG Story Share Generator</h1>
-<p class="subtitle">Uso personale — incolla il link del post, scegli la foto, genera l'immagine 1080×1920 da condividere in storia.</p>
+//<p class="subtitle">Uso personale — incolla il link del post, scegli la foto, genera l'immagine 1080×1920 da condividere in storia.</p>
 
 <div class="layout">
 
@@ -17,29 +17,24 @@
   <div class="panel">
 
     <div class="step">
-      <div class="step-label"><span class="step-num">1</span> Link del post Instagram</div>
-      <input type="text" id="igLink" placeholder="https://www.instagram.com/p/....">
-      <button class="btn-secondary" id="fetchBtn" style="margin-top:8px;">Cerca foto (automatico)</button>
-      <div class="status" id="fetchStatus"></div>
-    </div>
-
-    <div class="step">
-      <div class="step-label"><span class="step-num">2</span> Carica foto manualmente</div>
+      <div class="step-label"><span class="step-num">1</span> Carica le foto</div>
       <div class="dropzone" id="dropzone">
         Trascina qui una o più immagini<br>oppure clicca per scegliere il file
         <input type="file" id="fileInput" accept="image/*" multiple>
       </div>
-      <div class="hint">Sempre disponibile: usalo se il fetch automatico non trova nulla, o semplicemente al posto del link.</div>
     </div>
 
     <div class="step" id="gridStep" style="display:none;">
-      <div class="step-label"><span class="step-num">3</span> Scegli la foto</div>
+      <div class="step-label"><span class="step-num">2</span> Scegli la foto</div>
       <div class="thumb-grid" id="thumbGrid"></div>
     </div>
 
     <div class="step">
-      <div class="step-label"><span class="step-num">4</span> Nome account</div>
-      <input type="text" id="accountName" placeholder="nome.account (senza @)">
+      <div class="step-label"><span class="step-num">3</span> Nome account</div>
+      <input type="text" id="igLink" placeholder="Incolla qui il link del post (opzionale)">
+      <button class="btn-secondary" id="fetchUsernameBtn" style="margin-top:8px;">Recupera nome utente dal link</button>
+      <div class="status" id="fetchStatus"></div>
+      <input type="text" id="accountName" placeholder="nome.account (senza @)" style="margin-top:10px;">
     </div>
 
     <div class="step">
