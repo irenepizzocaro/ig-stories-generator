@@ -56,14 +56,43 @@ const els = {
 })();
 
 // Carousel badge image (extracted from the original PSD by default).
-// Swap assets/icons/carousel-badge.png with your own file any time —
-// this just loads whatever is at that path.
-(function loadCarouselBadge(){
-  const img = new Image();
-  img.crossOrigin = 'anonymous'; // avoids tainting the canvas once this is served over http(s)
-  img.onload = () => { carouselBadgeImg = img; };
-  img.onerror = () => { carouselBadgeImg = null; };
-  img.src = 'assets/icons/carousel-badge.png';
+// The old loader requested it with crossOrigin="anonymous" and, on any error,
+// silently gave up — which is why a dark placeholder square was drawn instead
+// of the real icon. Now it tries, in order: each candidate file name below
+// (so a replacement saved as .png/.webp/.svg/.jpg is found too), first as a
+// plain same-origin image and then with crossOrigin. If nothing loads, a
+// visible message names the exact paths that were tried.
+const BADGE_CANDIDATES = [
+  'assets/icons/carousel-badge.png',
+  'assets/icons/carousel-badge.webp',
+  'assets/icons/carousel-badge.svg',
+  'assets/icons/carousel-badge.jpg',
+  'assets/icons/carousel-badge.jpeg',
+];
+
+function tryLoadBadge(path, useCors){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    if (useCors) img.crossOrigin = 'anonymous';
+    img.onload = () => (img.naturalWidth > 0 ? resolve(img) : reject(new Error('empty image')));
+    img.onerror = () => reject(new Error('not found: ' + path));
+    img.src = path;
+  });
+}
+
+(async function loadCarouselBadge(){
+  for (const path of BADGE_CANDIDATES){
+    for (const useCors of [false, true]){
+      try {
+        carouselBadgeImg = await tryLoadBadge(path, useCors);
+        // if a story was already generated before the badge finished loading, redraw it
+        if (selectedIndex >= 0 && canvas.style.display === 'block') render();
+        return;
+      } catch (e){ /* try the next variant */ }
+    }
+  }
+  carouselBadgeImg = null;
+  console.warn('Carousel badge not found. Tried: ' + BADGE_CANDIDATES.join(', '));
 })();
 
 // Opening this file locally via double-click (file:// URL) makes Chrome treat
@@ -278,26 +307,18 @@ function roundedRectPath(ctx, x, y, w, h, r){
   ctx.closePath();
 }
 
-// Carousel badge: drawn from assets/icons/carousel-badge.png (real asset,
-// defaults to the icon extracted straight from the original PSD layer).
-// If that image failed to load for any reason, falls back to a plain
-// rounded dark pill so the layout doesn't visibly break.
+// Carousel badge: drawn only from the image in assets/icons/ (no more
+// placeholder shape). Scaled to the PSD's badge size (75x70 at 1080px wide)
+// keeping the file's own proportions, so any replacement image — whatever its
+// resolution — lands at the right size and centered on the same spot.
+const BADGE_BOX_W = 75, BADGE_BOX_H = 70;
 function drawCarouselBadge(ctx, centerX, centerY){
-  if (carouselBadgeImg){
-    const w = carouselBadgeImg.width;
-    const h = carouselBadgeImg.height;
-    ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,0.35)';
-    ctx.shadowBlur = 6;
-    ctx.drawImage(carouselBadgeImg, centerX - w / 2, centerY - h / 2, w, h);
-    ctx.restore();
-    return;
-  }
-  ctx.save();
-  roundedRectPath(ctx, centerX - 17, centerY - 17, 34, 34, 9);
-  ctx.fillStyle = 'rgba(0,0,0,0.35)';
-  ctx.fill();
-  ctx.restore();
+  if (!carouselBadgeImg) return;
+  const nw = carouselBadgeImg.naturalWidth || carouselBadgeImg.width;
+  const nh = carouselBadgeImg.naturalHeight || carouselBadgeImg.height;
+  const s = Math.min(BADGE_BOX_W / nw, BADGE_BOX_H / nh);
+  const w = nw * s, h = nh * s;
+  ctx.drawImage(carouselBadgeImg, centerX - w / 2, centerY - h / 2, w, h);
 }
 
 function render(){
@@ -307,10 +328,13 @@ function render(){
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // BG layer: same photo, scaled to cover the full canvas, blurred
+  // BG layer: same photo, scaled to cover the full canvas, blurred 80px.
+  // The photo is drawn oversized by BG_BLEED on every side so the blur doesn't
+  // fade out into transparency at the canvas edges (needs ~2-3x the blur).
+  const BG_BLUR = 80, BG_BLEED = 240;
   ctx.save();
-  ctx.filter = 'blur(28px) saturate(1.05)';
-  drawCoverImage(ctx, img, -60, -60, canvas.width + 120, canvas.height + 120);
+  ctx.filter = `blur(${BG_BLUR}px) saturate(1.05)`;
+  drawCoverImage(ctx, img, -BG_BLEED, -BG_BLEED, canvas.width + BG_BLEED * 2, canvas.height + BG_BLEED * 2);
   ctx.restore();
   ctx.fillStyle = 'rgba(0,0,0,0.12)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
