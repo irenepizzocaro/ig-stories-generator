@@ -328,10 +328,10 @@ function render(){
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // BG layer: same photo, scaled to cover the full canvas, blurred 80px.
+  // BG layer: same photo, scaled to cover the full canvas, blurred 70px.
   // The photo is drawn oversized by BG_BLEED on every side so the blur doesn't
   // fade out into transparency at the canvas edges (needs ~2-3x the blur).
-  const BG_BLUR = 80, BG_BLEED = 240;
+  const BG_BLUR = 70, BG_BLEED = 240;
   ctx.save();
   ctx.filter = `blur(${BG_BLUR}px) saturate(1.05)`;
   drawCoverImage(ctx, img, -BG_BLEED, -BG_BLEED, canvas.width + BG_BLEED * 2, canvas.height + BG_BLEED * 2);
